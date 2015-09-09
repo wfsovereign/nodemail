@@ -1,0 +1,18 @@
+doctype html
+html
+    head
+        title= title
+        link(rel='stylesheet', href='/stylesheets/style.css')
+    body
+
+
+      h1= title
+      p Welcome to #{title}
+
+      div
+        span email:
+        input(type="text")
+        input(type="button",value="注册").sign-up
+
+        script(src="/bower/jquery/dist/jquery.min.js")
+        script(src="/js/index.js")
