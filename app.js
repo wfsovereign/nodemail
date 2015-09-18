@@ -14,24 +14,36 @@ var debug = require('debug')('nodemail-app');
 
 var log4js = require('log4js');
 var logConfig = {
-    "appenders":[
-        {"type": "console","category":"console"},
+    "appenders": [
         {
-            type: 'dateFile', //文件输出
-            "filename":"./log/",
-            "pattern":"yyyyMMdd.log",
+            "type": "console",
+            "category": "console"
+        },
+        {
+            "type": 'dateFile', //文件输出
+            "filename": "./log/",
+            "pattern": "yyyyMMdd.log",
             //命名规则，我们是按天，也可以设置为yyyyMMddhh.log，为按时
-            "absolute":true,
-            "alwaysIncludePattern":true,
-            "category":"logInfo"
+            "absolute": true,
+            "alwaysIncludePattern": true,
+            "category": "logInfo"
+        },
+        {
+            "type": 'dateFile',
+            "filename": "./log/",
+            "pattern": "yyyyMMdd.log",
+            "absolute": true,
+            "alwaysIncludePattern": true,
+            "category": 'normal'
         }
     ],
-    "levels":{"logInfo":"INFO"}
+    "levels": {"logInfo": "INFO"}
 };
 
 log4js.configure(logConfig);
-var logInfo =log4js.getLogger('logInfo');
 
+var logInfo = log4js.getLogger('normal');
+//logInfo.info('this is my words');
 
 var app = express();
 
@@ -48,7 +60,8 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(log4js.connectLogger(logInfo,{level:'auto',format:':method : url'}));
+//app.use(log4js.connectLogger(logInfo, {level: 'INFO'}));
+app.use(log4js.connectLogger(log4js.getLogger('normal'), {level:'auto', format:':method :url'}));
 app.use(session({
     secret: config.setting.cookieSecret,
     key: config.setting.db,
@@ -61,20 +74,18 @@ app.use(session({
 }));
 
 
-
-
 router(app);
 
-app.all('*', function(req, res, next) {
+app.all('*', function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
-    res.header("X-Powered-By",' 3.2.1');
+    res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+    res.header("X-Powered-By", ' 3.2.1');
     res.header("Content-Type", "application/json;charset=utf-8");
     next();
 });
 app.listen(app.get('port'), function () {
-    debug('zhongzhong project server start on :' + app.get('port'));
+    debug('mail test project server start on :' + app.get('port'));
 });
 
 // catch 404 and forward to error handler
@@ -91,7 +102,9 @@ app.use(function (req, res, next) {
 if (app.get('env') === 'development') {
     app.use(function (err, req, res, next) {
         res.status(err.status || 500);
-        console.log(err,"服务器的错误");
+        logInfo.info(err, "服务器的错误");
+        debug(err, "服务器的错误");
+        console.log(err, "服务器的错误");
         res.render('404', {
             message: err.message,
             error: err

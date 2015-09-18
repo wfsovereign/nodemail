@@ -22,6 +22,14 @@ function router (app) {
             data:""
         });
     });
+
+    app.get('/api/test',function (req,res){
+        debug('test');
+        res.render('ap_est',{
+            title:'test api'
+        });
+
+    });
 }
 
 
